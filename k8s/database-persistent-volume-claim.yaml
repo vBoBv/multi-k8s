@@ -1,0 +1,14 @@
+# A Volume claim is not an access instance of storage
+# A Volume Claim is something that we will attach to the pod config
+# Pod config will hand this volume claim which provides the options that we want off to K8s
+# K8s will then find an instance of storage which can be static or dynamically created on the fly
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: database-persistent-volume-claim
+spec:
+  accessModes:
+    - ReadWriteOnce # Can be used a single node only which means K8s need to find an instance of storage which supports this access mode
+  resources:
+    requests:
+      storage: 2Gi # K8s will need to find an instance of storage with a 2GB of storage which can be static or dynamically created

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector: # Cluster IP for our multi-client server, which need to have a selector in order to find our multi-client server which has a key value pair of component: server
+    component: server
+  ports:
+    - port: 5000 # Use the same port because we want other Object to access the ClusterIP service and at the same time get access to the deployment multi-client server pod
+      targetPort: 5000

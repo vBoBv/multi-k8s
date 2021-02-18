@@ -1,0 +1,23 @@
+# Worker here does not need a Service of ClusterIP Object type because there is no other pod that needs to get access to this Worker Container
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: worker
+  template:
+    metadata:
+      labels:
+        component: worker
+    spec:
+      containers:
+        - name: worker
+          image: stephengrider/multi-worker
+          env: #Env in order for our worker to connect to Redis, it is an array of key value pair of name and value
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service # name inside metadata inside the Redis ClusterIP config file, this here could be intrepret as a url which allow the worker to connect to redis via the redis clusterip
+            - name: REDIS_PORT
+              value: '6379'

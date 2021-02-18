@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: server
+  template:
+    metadata:
+      labels: # Must match up with the label inside spec for in this config file
+        component: server
+    spec: # Configuration of the server that the deployment object going to create
+      containers:
+        - name: server
+          image: stephengrider/multi-server
+          ports:
+            - containerPort: 5000
+          env: #Env in order for our worker to connect to Redis, it is an array of key value pair of name and value
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service # name inside metadata inside the Redis ClusterIP config file, this here could be intrepret as a url which allow the worker to connect to redis via the redis clusterip
+            - name: REDIS_PORT
+              value: '6379'
+            - name: PGUSER
+              value: postgres
+            - name: PGHOST
+              value: postgres-cluster-ip-service # name inside metadata inside the Postgres ClusterIP config file, this here could be intrepret as a url which allow the server to connect to Postgres via the Postgres clusterip
+            - name: PGPORT
+              value: '5432'
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom: # This is how we can retreive a secret from kubectl to use as a key value pair for PGPASSWORD
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD

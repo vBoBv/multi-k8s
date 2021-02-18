@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: postgres
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim: # This here will find the PVC Config file and use those configurations to allow K8s to slice a portion of our hard drive to be used as requested in the PVC config file (local machine) or use Cloud Database provider/provision if it is on Cloud
+            claimName: database-persistent-volume-claim
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-storage # Go back to the volumes inside spec that we just ask k8s for it
+              mountPath: /var/lib/postgresql/data # Default place where the data will be saved
+              subPath: postgres # We want to save it inside the postgres folder
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom: # This is how we can retreive a secret from kubectl to use as a key value pair for PGPASSWORD
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD

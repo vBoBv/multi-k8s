@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector: # ClusterIP here will provide access to our client-pods which has a label key value pair of component:web, this means this ClusterIP here need to have a selector of component:web to find the client-pod, which it could provide access to
+    component: redis
+  ports:
+    - port: 6379 # Use the same port because we want other Object to access the ClusterIP service and at the same time get access to the deployment redis pod
+      targetPort: 6379
